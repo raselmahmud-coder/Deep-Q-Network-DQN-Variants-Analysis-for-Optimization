@@ -102,13 +102,13 @@ def run(is_training=True, render=False):
     writer.close()  # Close TensorBoard writer
 
     if is_training:
-        with open('cartpole_dqn.pkl', 'wb') as f:
+        with open('./Models/cartpole_dqn1.pkl', 'wb') as f:
             pickle.dump(agent.model.state_dict(), f)
 
     plt.plot(rewards_per_episode)
     plt.xlabel('Episode')
     plt.ylabel('Total Reward')
-    plt.savefig('cartpole_dqn_rewards.png')
+    plt.savefig('./Results/cartpole_dqn_rewards1.png')
     env.close()
 
 if __name__ == '__main__':
@@ -116,4 +116,4 @@ if __name__ == '__main__':
     run(is_training=True, render=False)
 
     # Testing phase
-    run(is_training=False, render=True)
+    # run(is_training=False, render=True)

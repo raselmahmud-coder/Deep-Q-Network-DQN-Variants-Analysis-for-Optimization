@@ -8,8 +8,9 @@ import torch.nn as nn
 import torch.nn.functional as F
 from collections import deque
 import random
+from torch.utils.tensorboard import SummaryWriter
 
-class DQNAgent:
+class DoubleDQNAgent:
     def __init__(self, state_size, action_size):
         self.state_size = state_size
         self.action_size = action_size
@@ -19,7 +20,9 @@ class DQNAgent:
         self.epsilon_min = 0.01
         self.epsilon_decay = 0.995
         self.learning_rate = 0.001
-        self.model = self._build_model()
+        self.eval_model = self._build_model()
+        self.target_model = self._build_model()
+        self.update_target_model()
 
     def _build_model(self):
         model = nn.Sequential(
@@ -31,6 +34,9 @@ class DQNAgent:
         )
         return model
 
+    def update_target_model(self):
+        self.target_model.load_state_dict(self.eval_model.state_dict())
+
     def remember(self, state, action, reward, next_state, done):
         self.memory.append((state, action, reward, next_state, done))
 
@@ -38,7 +44,7 @@ class DQNAgent:
         if np.random.rand() <= self.epsilon:
             return np.random.randint(self.action_size)
         state = torch.tensor(state, dtype=torch.float).unsqueeze(0)
-        act_values = self.model(state)
+        act_values = self.eval_model(state)
         return torch.argmax(act_values).item()
 
     def replay(self, batch_size):
@@ -48,29 +54,33 @@ class DQNAgent:
         for state, action, reward, next_state, done in minibatch:
             state = torch.tensor(state, dtype=torch.float)
             next_state = torch.tensor(next_state, dtype=torch.float)
-            target = reward
-            if not done:
-                target += self.gamma * torch.max(self.model(next_state)).item()
-            target_f = self.model(state).detach().clone()
-            target_f[action] = target
-            self.model.zero_grad()
+            target = self.eval_model(state).detach().clone()
+            if done:
+                target[action] = reward
+            else:
+                next_action = torch.argmax(self.eval_model(next_state)).item()
+                target[action] = reward + self.gamma * self.target_model(next_state)[next_action].item()
+            self.eval_model.zero_grad()
             criterion = nn.MSELoss()
-            loss = criterion(self.model(state), target_f)
+            loss = criterion(self.eval_model(state), target)
             loss.backward()
-            optimizer = torch.optim.Adam(self.model.parameters(), lr=self.learning_rate)
+            optimizer = torch.optim.Adam(self.eval_model.parameters(), lr=self.learning_rate)
             optimizer.step()
         if self.epsilon > self.epsilon_min:
             self.epsilon *= self.epsilon_decay
 
-def run(is_training=True, render=False):
+def run_ddqn(is_training=True, render=False):
     env = gym.make('CartPole-v1', render_mode='human' if render else None)
     state_size = env.observation_space.shape[0]
     action_size = env.action_space.n
-    agent = DQNAgent(state_size, action_size)
+    agent = DoubleDQNAgent(state_size, action_size)
     episodes = 1000
     batch_size = 32
 
     rewards_per_episode = []
+
+    # Initialize TensorBoard writer
+    writer = SummaryWriter(log_dir='./tensorboard_logs/ddqn')
 
     for e in range(episodes):
         state, _ = env.reset()
@@ -87,26 +97,32 @@ def run(is_training=True, render=False):
                 rewards_per_episode.append(total_reward)
                 mean_rewards = np.mean(rewards_per_episode[-100:])
                 print(f"Episode {e}/{episodes}, Reward: {total_reward}, Mean Reward: {mean_rewards:.2f}, Epsilon: {agent.epsilon:.2f}")
+                writer.add_scalar('Reward', total_reward, e)  # Log reward to TensorBoard
                 break
         if is_training:
             agent.replay(batch_size)
+        if e % 10 == 0:
+            agent.update_target_model()
         if np.mean(rewards_per_episode[-100:]) > 195:
             print("Environment solved!")
             break
 
+    writer.close()  # Close TensorBoard writer
+
     if is_training:
-        with open('./Models/cartpole_dqn.pkl', 'wb') as f:
-            pickle.dump(agent.model.state_dict(), f)
+        with open('../Models/cartpole_double_dqn.pkl', 'wb') as f:
+            pickle.dump(agent.eval_model.state_dict(), f)
 
     plt.plot(rewards_per_episode)
     plt.xlabel('Episode')
     plt.ylabel('Total Reward')
-    plt.savefig('./Results/cartpole_dqn_rewards.png')
+    plt.title('Double DQN Training Rewards')
+    plt.savefig('../Results/cartpole_double_dqn.png')
     env.close()
 
 if __name__ == '__main__':
-    # Training phase
-    # run(is_training=True, render=False)
+    # Training phase for Double DQN
+    # run_ddqn(is_training=True, render=False)
 
-    # Testing phase
-    run(is_training=False, render=True)
+    # Testing phase for Double DQN
+    run_ddqn(is_training=False, render=True)
