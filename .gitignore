@@ -2,3 +2,8 @@
 /Models
 tensorboard_logs/*
 *.pth
+# Python bytecode
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
