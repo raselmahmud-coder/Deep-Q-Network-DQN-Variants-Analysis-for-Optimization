@@ -8,22 +8,22 @@ import gymnasium as gym
 from torch.utils.tensorboard import SummaryWriter
 import collections
 
-# 超参数
-EPISODES = 2000  # 训练/测试幕数
+# hyper-parameters
+EPISODES = 2000  # Number of training/testing sessions
 BATCH_SIZE = 64
 LR = 0.00025
 GAMMA = 0.98
-SAVING_IETRATION = 1000  # 保存Checkpoint的间隔
-MEMORY_CAPACITY = 10000  # Memory的容量
-MIN_CAPACITY = 500  # 开始学习的下限
-Q_NETWORK_ITERATION = 10  # 同步target network的间隔
+SAVING_IETRATION = 1000  # Interval for saving Checkpoints
+MEMORY_CAPACITY = 10000  # Memory capacity
+MIN_CAPACITY = 500  # The lower limit for starting learning
+Q_NETWORK_ITERATION = 10  # Interval for synchronizing target network
 EPSILON = 0.01  # epsilon-greedy
 SEED = 0
 MODEL_PATH = ''
 SAVE_PATH_PREFIX = './log/dqn/'
-TEST = False  # 用于控制当前行为是在训练还是在测试
+TEST = False  # Used to control whether the current behavior is being trained or tested
 
-# 选择一个实验环境
+# Choose an experimental environment
 
 # Classica Control
 # env = gym.make('CartPole-v1', render_mode="human" if TEST else None)
@@ -31,7 +31,7 @@ TEST = False  # 用于控制当前行为是在训练还是在测试
 # ......
 
 # LunarLander
-# env = gym.make("LunarLander-v2",continuous=False,gravity=-10.0,enable_wind=True,wind_power=15.0,turbulence_power=1.5,render_mode="human" if TEST else None)
+# env = gym.make("LunarLander-v3",continuous=False,gravity=-10.0,enable_wind=True,wind_power=15.0,turbulence_power=1.5,render_mode="human" if TEST else None)
 
 random.seed(SEED)
 torch.manual_seed(SEED)
@@ -50,11 +50,11 @@ ENV_A_SHAPE = 0 if np.issubdtype(
 class Model(nn.Module):
 
     def __init__(self, num_inputs=4):
-        # TODO 输入的维度为 NUM_STATES，输出的维度为 NUM_ACTIONS
+        # TODO The input dimension is NUM_STATES，The output dimension is NUM_ACTIONS
         super(Model, self).__init__()
 
     def forward(self, x):
-        # TODO
+        # TODO Forward pass through the network
         return x
 
 
@@ -69,7 +69,7 @@ class Data:
 
 
 class Memory:
-    """用于 Experience Replay"""
+    """used for Experience Replay"""
 
     def __init__(self, capacity):
         self.buffer = collections.deque(maxlen=capacity)
@@ -123,7 +123,7 @@ class DQN():
 
         self.learn_step_counter += 1
 
-        # TODO 实现 Q network 的更新过程
+        # TODO Implement the update process of Q network
 
         self.optimizer.zero_grad()
         loss.backward()
