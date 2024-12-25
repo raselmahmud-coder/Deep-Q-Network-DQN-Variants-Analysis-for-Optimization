@@ -16,6 +16,19 @@ class DQNNetwork(nn.Module):
         q_values = self.fc3(x)
         return q_values
 
+class DoubleDQNNetwork(nn.Module):
+    def __init__(self, num_inputs, num_actions):
+        super(DoubleDQNNetwork, self).__init__()
+        self.fc1 = nn.Linear(num_inputs, 128)
+        self.fc2 = nn.Linear(128, 128)
+        self.fc3 = nn.Linear(128, num_actions)
+    
+    def forward(self, x):
+        x = F.relu(self.fc1(x))
+        x = F.relu(self.fc2(x))
+        q_values = self.fc3(x)
+        return q_values
+
 class DuelingDQNNetwork(nn.Module):
     def __init__(self, num_inputs, num_actions):
         super(DuelingDQNNetwork, self).__init__()
