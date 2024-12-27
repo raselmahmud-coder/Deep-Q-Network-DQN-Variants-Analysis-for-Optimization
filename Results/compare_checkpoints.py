@@ -1,7 +1,7 @@
 # results/compare_checkpoints.py
 import os
 import sys
-import gym
+import gymnasium as gym 
 import torch
 import numpy as np
 import pandas as pd
@@ -21,14 +21,38 @@ from models import DQNNetwork, DoubleDQNNetwork, DuelingDQNNetwork
 
 # Manually select environment
 # env_name = 'MountainCar-v0'
-env_name = 'LunarLander-v2'
+# env_name = 'LunarLander-v2'
 # env_name = 'CartPole-v1'
+
+# At the top of your file, after imports
+ENV_MAPPING = {
+    'LunarLander-v3': 'LunarLander-v3',  # Use v3 instead of v2
+    'MountainCar-v0': 'MountainCar-v0',
+    'CartPole-v1': 'CartPole-v1'
+}
+
+# Modify these variables
+env_name = 'LunarLander-v3'  # Use v3 instead of v2
+folder_name = ENV_MAPPING[env_name]
+
+def print_versions():
+    """Print version information for relevant packages."""
+    print("\nPackage versions:")
+    print(f"Python: {sys.version}")
+    print(f"NumPy: {np.__version__}")
+    print(f"PyTorch: {torch.__version__}")
+    print(f"Gymnasium: {gym.__version__}")
+    print("\n")
+
+# Add this right after imports
+print_versions()
+
 
 def evaluate_checkpoint(model_path, env_name, algorithm, num_episodes=100):
     """Evaluate a single checkpoint."""
     try:
-        # Create environment and get dimensions
-        env = gym.make(env_name)
+        # Create environment using gymnasium with v3
+        env = gym.make(env_name, render_mode=None)
         state_dim = env.observation_space.shape[0]
         action_dim = env.action_space.n
 
@@ -42,13 +66,14 @@ def evaluate_checkpoint(model_path, env_name, algorithm, num_episodes=100):
         else:
             raise ValueError(f"Unknown algorithm: {algorithm}")
 
-        # Handle DataParallel if necessary
-        state_dict = torch.load(model_path, map_location=torch.device('cpu'))
+        # Load model with weights_only=True
+        try:
+            state_dict = torch.load(model_path, map_location=torch.device('cpu'), weights_only=True)
+        except TypeError:
+            state_dict = torch.load(model_path, map_location=torch.device('cpu'))
+
         if 'module.' in list(state_dict.keys())[0]:
-            # Remove 'module.' prefix
-            new_state_dict = {}
-            for k, v in state_dict.items():
-                new_state_dict[k.replace('module.', '')] = v
+            new_state_dict = {k.replace('module.', ''): v for k, v in state_dict.items()}
             state_dict = new_state_dict
 
         model.load_state_dict(state_dict)
@@ -58,43 +83,34 @@ def evaluate_checkpoint(model_path, env_name, algorithm, num_episodes=100):
         rewards = []
         for episode in range(num_episodes):
             try:
-                state = env.reset()
-                if isinstance(state, tuple):
-                    state = state[0]  # New gym format returns (state, info)
+                state, _ = env.reset()
+                total_reward = 0
+                terminated = truncated = False
+
+                while not (terminated or truncated):
+                    if state is None or (isinstance(state, np.ndarray) and state.size == 0):
+                        break
+
+                    state_tensor = torch.FloatTensor(state).unsqueeze(0)
+                    with torch.no_grad():
+                        action = model(state_tensor).max(1)[1].item()
+
+                    try:
+                        next_state, reward, terminated, truncated, _ = env.step(action)
+                        total_reward += reward
+                        state = next_state
+                    except Exception as e:
+                        print(f"Error in step: {e}")
+                        break
+
+                rewards.append(total_reward)
             except Exception as e:
-                print(f"Error in reset: {e}")
+                print(f"Error in episode {episode}: {e}")
                 continue
-
-            total_reward = 0
-            done = False
-            truncated = False
-
-            while not (done or truncated):
-                if state is None or (isinstance(state, np.ndarray) and state.size == 0):
-                    print(f"Empty state encountered at episode {episode + 1}")
-                    break
-
-                state_tensor = torch.FloatTensor(state).unsqueeze(0)
-                with torch.no_grad():
-                    action = model(state_tensor).max(1)[1].item()
-
-                try:
-                    step_result = env.step(action)
-                    if len(step_result) == 4:
-                        state, reward, done, _ = step_result
-                    else:
-                        state, reward, done, truncated, _ = step_result
-                except Exception as e:
-                    print(f"Error in step: {e}")
-                    break
-
-                total_reward += reward
-
-            rewards.append(total_reward)
 
         env.close()
 
-        if rewards:  # Only calculate stats if we have rewards
+        if rewards:
             return np.mean(rewards), np.std(rewards)
         else:
             return None, None
@@ -107,18 +123,24 @@ def collect_checkpoint_data(weights_dir):
     """Collect performance data for all checkpoints."""
     data = []
     checkpoints = ['1000.pth', '2000.pth', 'best.pth']
+    
+    # Use folder_name instead of env_name for directory navigation
+    print(f"Looking for checkpoints in folders named: {folder_name}")
+    print(f"Using gym environment: {env_name}")
 
     for algo in os.listdir(weights_dir):
         algo_path = os.path.join(weights_dir, algo)
         if os.path.isdir(algo_path):
-            env_path = os.path.join(algo_path, env_name)
+            # Use folder_name here instead of env_name
+            env_path = os.path.join(algo_path, folder_name)
             if os.path.isdir(env_path):
-                print(f"\nEvaluating {algo} checkpoints for {env_name}")
+                print(f"\nEvaluating {algo} checkpoints for {folder_name}")
 
                 for checkpoint in checkpoints:
                     model_path = os.path.join(env_path, checkpoint)
                     if os.path.exists(model_path):
                         print(f"Evaluating {checkpoint}...")
+                        # Pass env_name here for gym environment creation
                         mean_reward, std_reward = evaluate_checkpoint(model_path, env_name, algo)
 
                         if mean_reward is not None and std_reward is not None:
@@ -134,7 +156,10 @@ def collect_checkpoint_data(weights_dir):
                         print(f"Checkpoint {checkpoint} not found in {env_path}")
 
     if not data:
-        print("No valid checkpoint data collected!")
+        print("\nNo valid checkpoint data collected!")
+        print(f"Checked directory: {weights_dir}")
+        print(f"Looking for folders named: {folder_name}")
+        print(f"Expected structure: {weights_dir}/<algorithm>/{folder_name}/<checkpoint>.pth")
         return pd.DataFrame()
 
     return pd.DataFrame(data)
@@ -226,23 +251,34 @@ def create_summary_table(df, save_path=None):
     return summary_table
 
 def main():
-    # Manually select environment
-    # env_name = 'MountainCar-v0'
-    # env_name = 'LunarLander-v3'
-    # env_name = 'CartPole-v1'  # Ensure this matches the desired environment
-
     # Set up paths
     weights_dir = os.path.join(current_dir, 'weights')
-    plots_dir = os.path.join(current_dir, 'plots_images', f"{env_name}_ENV")
+    plots_dir = os.path.join(current_dir, 'plots_images', f"{folder_name}_ENV")
     os.makedirs(plots_dir, exist_ok=True)
 
-    # Collect checkpoint data
-    print(f"Collecting checkpoint data for {env_name}...")
+    print(f"Collecting checkpoint data...")
+    print(f"Gym environment: {env_name}")
+    print(f"Folder name: {folder_name}")
     print(f"Looking in directory: {weights_dir}")
+
+    # Verify directory exists
+    if not os.path.exists(weights_dir):
+        print(f"\nError: Weights directory not found: {weights_dir}")
+        return
+
+    # Print available directories for debugging
+    print("\nAvailable directories in weights folder:")
+    if os.path.exists(weights_dir):
+        for algo in os.listdir(weights_dir):
+            algo_path = os.path.join(weights_dir, algo)
+            if os.path.isdir(algo_path):
+                print(f"\n{algo}:")
+                for env in os.listdir(algo_path):
+                    print(f"  - {env}")
 
     df = collect_checkpoint_data(weights_dir)
     if df.empty:
-        print("\nNo checkpoint data found!")
+        print("\nNo data to plot!")
         return
 
     # Generate plots
@@ -261,7 +297,6 @@ def main():
         save_path=os.path.join(plots_dir, 'checkpoint_summary.csv')
     )
 
-    # Display summary
     print("\nCheckpoint Performance Summary:")
     print(summary_table)
     print("\nAll visualizations have been saved to:", plots_dir)

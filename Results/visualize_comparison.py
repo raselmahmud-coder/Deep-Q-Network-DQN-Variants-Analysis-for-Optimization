@@ -7,6 +7,16 @@ import seaborn as sns
 
 sns.set(style="darkgrid")
 
+# env_name = 'MountainCar-v0' # manually need to change for each environment
+env_name = 'LunarLander-v3' # manually need to change for each environment
+# env_name = 'CartPole-v1' # manually need to change for each environment
+
+# Plot Convergence Speed with environment-specific threshold
+if env_name == 'MountainCar-v0':
+    threshold = -110  # Adjusted threshold for MountainCar
+else:
+    threshold = 200   # Default threshold for other environments
+
 
 def parse_log_file(log_path):
 
@@ -59,9 +69,6 @@ def compute_metrics(df, window=50):
         lambda x: x.rolling(window, min_periods=1).std())
     return df_sorted
 
-# env_name = 'MountainCar-v0' # manually need to change for each environment
-# env_name = 'LunarLander-v3' # manually need to change for each environment
-env_name = 'CartPole-v1' # manually need to change for each environment
 
 
 def plot_rewards(df, save_path=None):
@@ -97,24 +104,7 @@ def plot_epsilon(df, save_path=None):
 
 
 
-def plot_convergence(df, threshold=200, save_path=None):
-    # Automatically determine appropriate threshold based on environment and data
-    if env_name == 'MountainCar-v0':
-        # For MountainCar-v0, use 90th percentile of rewards as threshold
-        threshold = df['reward'].quantile(0.90)
-    elif env_name == 'CartPole-v1':
-        threshold = 200  # Standard threshold for CartPole
-    elif env_name == 'LunarLander-v2':
-        threshold = 200  # Standard threshold for LunarLander
-    else:
-        # For unknown environments, use 75th percentile of rewards
-        threshold = df['reward'].quantile(0.75)
-    
-    # Add debug information
-    print(f"\nConvergence Analysis for {env_name}")
-    print(f"Automatically determined threshold: {threshold:.1f}")
-    print(f"Reward range: {df['reward'].min():.1f} to {df['reward'].max():.1f}")
-    
+def plot_convergence(df, save_path=None):
     # Find episodes where each algorithm first reaches threshold
     convergence = df[df['reward'] >= threshold].groupby('algorithm')['episode'].min().reset_index()
     
@@ -195,12 +185,6 @@ def plot_combined_metrics(df, save_path=None):
     axes[0, 1].set_title(f'Epsilon Decay - {env_name}')
     axes[0, 1].set_xlabel('Episode')
     axes[0, 1].set_ylabel('Epsilon')
-
-    # Plot Convergence Speed with environment-specific threshold
-    if env_name == 'MountainCar-v0':
-        threshold = -110  # Adjusted threshold for MountainCar
-    else:
-        threshold = 200   # Default threshold for other environments
 
     convergence = df[df['reward'] >= threshold].groupby(
         'algorithm')['episode'].min().reset_index()
@@ -294,7 +278,7 @@ def main():
                  env_name+"_ENV", 'comparison_rewards.png'))
     plot_epsilon(df, save_path=os.path.join(current_dir,"plots_images",
                  env_name+"_ENV", 'comparison_epsilon_decay.png'))
-    plot_convergence(df, threshold=200, save_path=os.path.join(current_dir,
+    plot_convergence(df, save_path=os.path.join(current_dir,
         "plots_images", env_name+"_ENV", 'convergence_speed.png'))
     plot_stability(df, window=50, save_path=os.path.join(current_dir,
         "plots_images", env_name+"_ENV", 'stability_rewards.png'))
