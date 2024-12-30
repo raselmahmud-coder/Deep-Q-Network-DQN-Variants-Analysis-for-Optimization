@@ -21,8 +21,8 @@ from models import DQNNetwork, DoubleDQNNetwork, DuelingDQNNetwork
 
 # Manually select environment
 # env_name = 'MountainCar-v0'
-# env_name = 'LunarLander-v2'
 # env_name = 'CartPole-v1'
+env_name = 'LunarLander-v3'  # Use v3 instead of v2
 
 # At the top of your file, after imports
 ENV_MAPPING = {
@@ -31,8 +31,6 @@ ENV_MAPPING = {
     'CartPole-v1': 'CartPole-v1'
 }
 
-# Modify these variables
-env_name = 'LunarLander-v3'  # Use v3 instead of v2
 folder_name = ENV_MAPPING[env_name]
 
 def print_versions():

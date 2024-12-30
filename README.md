@@ -1,60 +1,164 @@
 # Project outline
 
-![ DQN VS DDQN of CartPole](./Results/cartpole%20dqn%20vs%20ddqn.png)
+Each video saved inside `"results/video"` directory which contain one video for each environment and each algorithm only best strategy using gymnasium package.
 
-Observed Differences from the Plots:
-Stability:
+In the `weights` folder have trained file `1000.pth`, `2000.pth`, `best.pth` and `training.log` for each algorithm and each environment.
 
-The reward curve for DQN shows high variability, with frequent spikes and dips, indicating instability in the learning process.
-The Double DQN reward curve appears more consistent, with a smoother decline in exploration-based rewards early on.
-Performance:
+`plots_images` folder contain all visualization `7 images` and a `checkpoint_summary.csv` file for each environments and algorithms
 
-Both algorithms failed to solve the environment (CartPole is solved at an average reward of 195 over 100 episodes).
-Double DQN demonstrates more stable behavior but with a slightly lower peak in rewards compared to DQN.
-Convergence Speed:
+## Installation
 
-DQN's erratic behavior shows that it struggles to converge effectively.
-Double DQN, although smoother, appears to require additional tuning to reach optimal performance.
-Explanation of the Differences:
-Overestimation Bias in DQN:
+Please follow these steps to install the necessary dependencies and set up the project locally. To see required packages please open the `requirements.txt` file.
 
-In DQN, Q-values are updated using the maximum estimated Q-value from the same network, leading to an overestimation bias that destabilizes learning.
-Double DQN mitigates this bias by using the evaluation network to select actions and the target network to estimate their values, resulting in better stability.
-Exploration vs Exploitation:
+### 1. Clone the repository:
 
-The smoother reward curve in Double DQN suggests that the algorithm balances exploration and exploitation more effectively, reducing the impact of random actions on the learning process.
-Hyperparameters:
+```bash
+git clone https://github.com/raselmahmud-coder/RL_Experiment_2.git
+cd RL_Experiment_2
+pip install -r requirements.txt
+```
 
-The differences may also stem from suboptimal hyperparameter tuning for both methods. Adjusting epsilon, learning rate, and replay buffer size could improve convergence for both algorithms.
+### For Training the Project:
+In this project have 3 algorithms `"DQN", "DoubleDQN", "DuelingDQN"` and 3 environments `"CartPole-v1", "MountainCar-v0", "LunarLander-v3"`
+
+You need to change the algorithm and environment argument for sequential training.
+
+```bash
+python main.py --algorithm DQN --environment CartPole-v1     
+```
+
+### For Visualization the Project:
+We have 3 environment here:
+- "CartPole-v1"
+- "MountainCar-v0"
+- "LunarLander-v3"
 
 
-2. Structure Your Presentation
-Plan the slides you need. For your RL project, consider the following structure:
+For visual and compare you need to set i.e., `env_name = 'LunarLander-v3'` manually need to change for each environment name and then run below command it will save specific folder each algorithms plot.
 
-Title Slide
-Introduction to Reinforcement Learning
-Algorithms Overview
-    -- DQN
-    -- DoubleDQN
-    -- DuelingDQN
-Environments Used
-    -- CartPole-v1
-    -- LunarLander-v2
-    -- MountainCar-v0
-Training Process
-Visualizing Checkpoints
-Results & Comparisons
-Conclusion
+```bash
+python .\results\visualize_comparison.py    
+python .\results\compare_checkpoints.py    
+```
 
-## Combining All These Tools
-Training Plots and Curves: 
-Use Plotly/Matplotlib to create reward curves and training loss graphs.
 
-Neural Network Visualization: 
-Use Netron to display network architecture or Manim to animate data flow through the network.
-
-Dynamic RL Simulation: 
-Use OpenAI Gym to simulate agent-environment interaction and capture images or videos for inclusion in your presentation.
-
-Diagrams: 
-Create flow diagrams in Lucidchart, Canva, or PowerPoint to explain the differences between DQN, DDQN, and Dueling DQN.
+## File Hierarchy
+```bash
+📦RL_Experiment_2
+ ┣ 📂results
+ ┃ ┣ 📂plots_images
+ ┃ ┃ ┣ 📂CartPole-v1_ENV
+ ┃ ┃ ┃ ┣ 📜checkpoint_comparison.png
+ ┃ ┃ ┃ ┣ 📜checkpoint_summary.csv
+ ┃ ┃ ┃ ┣ 📜combined_metrics.png
+ ┃ ┃ ┃ ┣ 📜comparison_epsilon_decay.png
+ ┃ ┃ ┃ ┣ 📜comparison_rewards.png
+ ┃ ┃ ┃ ┣ 📜convergence_speed.png
+ ┃ ┃ ┃ ┣ 📜learning_progress.png
+ ┃ ┃ ┃ ┗ 📜stability_rewards.png
+ ┃ ┃ ┣ 📂LunarLander-v3_ENV
+ ┃ ┃ ┃ ┣ 📜checkpoint_comparison.png
+ ┃ ┃ ┃ ┣ 📜checkpoint_summary.csv
+ ┃ ┃ ┃ ┣ 📜combined_metrics.png
+ ┃ ┃ ┃ ┣ 📜comparison_epsilon_decay.png
+ ┃ ┃ ┃ ┣ 📜comparison_rewards.png
+ ┃ ┃ ┃ ┣ 📜convergence_speed.png
+ ┃ ┃ ┃ ┣ 📜learning_progress.png
+ ┃ ┃ ┃ ┗ 📜stability_rewards.png
+ ┃ ┃ ┣ 📂MountainCar-v0_ENV
+ ┃ ┃ ┃ ┣ 📜checkpoint_comparison.png
+ ┃ ┃ ┃ ┣ 📜checkpoint_summary.csv
+ ┃ ┃ ┃ ┣ 📜combined_metrics.png
+ ┃ ┃ ┃ ┣ 📜comparison_epsilon_decay.png
+ ┃ ┃ ┃ ┣ 📜comparison_rewards.png
+ ┃ ┃ ┃ ┣ 📜convergence_speed.png
+ ┃ ┃ ┃ ┣ 📜learning_progress.png
+ ┃ ┃ ┃ ┗ 📜stability_rewards.png
+ ┃ ┃ ┣ 📜DDQN_Alog.png
+ ┃ ┃ ┣ 📜dqn_algo.png
+ ┃ ┃ ┣ 📜Dueling_dqn.png
+ ┃ ┃ ┗ 📜model_code_snippet.jpeg
+ ┃ ┣ 📂videos
+ ┃ ┃ ┣ 📂DoubleDQN
+ ┃ ┃ ┃ ┣ 📂CartPole-v1
+ ┃ ┃ ┃ ┃ ┗ 📜best_strategy.mp4
+ ┃ ┃ ┃ ┣ 📂LunarLander-v3
+ ┃ ┃ ┃ ┃ ┗ 📜best_strategy.mp4
+ ┃ ┃ ┃ ┗ 📂MountainCar-v0
+ ┃ ┃ ┃ ┃ ┗ 📜best_strategy.mp4
+ ┃ ┃ ┣ 📂DQN
+ ┃ ┃ ┃ ┣ 📂CartPole-v1
+ ┃ ┃ ┃ ┃ ┗ 📜best_strategy.mp4
+ ┃ ┃ ┃ ┣ 📂LunarLander-v3
+ ┃ ┃ ┃ ┃ ┗ 📜best_strategy.mp4
+ ┃ ┃ ┃ ┗ 📂MountainCar-v0
+ ┃ ┃ ┃ ┃ ┗ 📜best_strategy.mp4
+ ┃ ┃ ┗ 📂DuelingDQN
+ ┃ ┃ ┃ ┣ 📂CartPole-v1
+ ┃ ┃ ┃ ┃ ┗ 📜best_strategy.mp4
+ ┃ ┃ ┃ ┣ 📂LunarLander-v3
+ ┃ ┃ ┃ ┃ ┗ 📜best_strategy.mp4
+ ┃ ┃ ┃ ┗ 📂MountainCar-v0
+ ┃ ┃ ┃ ┃ ┗ 📜best_strategy.mp4
+ ┃ ┣ 📂weights
+ ┃ ┃ ┣ 📂DoubleDQN
+ ┃ ┃ ┃ ┣ 📂CartPole-v1
+ ┃ ┃ ┃ ┃ ┣ 📜1000.pth
+ ┃ ┃ ┃ ┃ ┣ 📜2000.pth
+ ┃ ┃ ┃ ┃ ┣ 📜best.pth
+ ┃ ┃ ┃ ┃ ┗ 📜training.log
+ ┃ ┃ ┃ ┣ 📂LunarLander-v3
+ ┃ ┃ ┃ ┃ ┣ 📜1000.pth
+ ┃ ┃ ┃ ┃ ┣ 📜2000.pth
+ ┃ ┃ ┃ ┃ ┣ 📜best.pth
+ ┃ ┃ ┃ ┃ ┗ 📜training.log
+ ┃ ┃ ┃ ┗ 📂MountainCar-v0
+ ┃ ┃ ┃ ┃ ┣ 📜1000.pth
+ ┃ ┃ ┃ ┃ ┣ 📜2000.pth
+ ┃ ┃ ┃ ┃ ┣ 📜best.pth
+ ┃ ┃ ┃ ┃ ┗ 📜training.log
+ ┃ ┃ ┣ 📂DQN
+ ┃ ┃ ┃ ┣ 📂CartPole-v1
+ ┃ ┃ ┃ ┃ ┣ 📜1000.pth
+ ┃ ┃ ┃ ┃ ┣ 📜2000.pth
+ ┃ ┃ ┃ ┃ ┣ 📜best.pth
+ ┃ ┃ ┃ ┃ ┗ 📜training.log
+ ┃ ┃ ┃ ┣ 📂LunarLander-v3
+ ┃ ┃ ┃ ┃ ┣ 📜1000.pth
+ ┃ ┃ ┃ ┃ ┣ 📜2000.pth
+ ┃ ┃ ┃ ┃ ┣ 📜best.pth
+ ┃ ┃ ┃ ┃ ┗ 📜training.log
+ ┃ ┃ ┃ ┗ 📂MountainCar-v0
+ ┃ ┃ ┃ ┃ ┣ 📜1000.pth
+ ┃ ┃ ┃ ┃ ┣ 📜2000.pth
+ ┃ ┃ ┃ ┃ ┣ 📜best.pth
+ ┃ ┃ ┃ ┃ ┗ 📜training.log
+ ┃ ┃ ┗ 📂DuelingDQN
+ ┃ ┃ ┃ ┣ 📂CartPole-v1
+ ┃ ┃ ┃ ┃ ┣ 📜1000.pth
+ ┃ ┃ ┃ ┃ ┣ 📜2000.pth
+ ┃ ┃ ┃ ┃ ┣ 📜best.pth
+ ┃ ┃ ┃ ┃ ┗ 📜training.log
+ ┃ ┃ ┃ ┣ 📂LunarLander-v3
+ ┃ ┃ ┃ ┃ ┣ 📜1000.pth
+ ┃ ┃ ┃ ┃ ┣ 📜2000.pth
+ ┃ ┃ ┃ ┃ ┣ 📜best.pth
+ ┃ ┃ ┃ ┃ ┗ 📜training.log
+ ┃ ┃ ┃ ┗ 📂MountainCar-v0
+ ┃ ┃ ┃ ┃ ┣ 📜1000.pth
+ ┃ ┃ ┃ ┃ ┣ 📜2000.pth
+ ┃ ┃ ┃ ┃ ┣ 📜best.pth
+ ┃ ┃ ┃ ┃ ┗ 📜training.log
+ ┃ ┣ 📜compare_checkpoints.py
+ ┃ ┗ 📜visualize_comparison.py
+ ┣ 📂utils
+ ┃ ┣ 📜logger.py
+ ┃ ┗ 📜video_recorder.py
+ ┣ 📜base_dqn.py
+ ┣ 📜data.py
+ ┣ 📜double_dqn.py
+ ┣ 📜dqn.py
+ ┣ 📜dueling_dqn.py
+ ┣ 📜main.py
+ ┣ 📜memory.py
+ ┣ 📜models.py
