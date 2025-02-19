@@ -2,13 +2,17 @@
 
 ### Programmatically recorded the best strategy's videos for each algorithm and each environment.
 
+
 *CartPole Demo Dueling Model*
+
 ![CartPole Demo Dueling](/Results/videos/DuelingDQN/CartPole-v1/CartPole_best_strategy.gif)
 
 *Lunar lander Demo Dueling Model*
+
 ![Lunar lander Demo Dueling](/Results/videos/DuelingDQN/LunarLander-v3/Luner_best_strategy.gif)
 
 *Mountain Car Demo Dueling Model*
+
 ![Mountain Car Demo Dueling](/Results/videos/DuelingDQN/MountainCar-v0/Mountain_best_strategy.gif)
 
 
