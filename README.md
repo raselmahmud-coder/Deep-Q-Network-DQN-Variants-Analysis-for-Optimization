@@ -16,7 +16,22 @@
 ![Mountain Car Demo Dueling](/Results/videos/DuelingDQN/MountainCar-v0/Mountain_best_strategy.gif)
 
 
-## Analysis result summary:
+## Analysis result:
+
+*CartPole Environment Checkpoint Comparison*
+
+![CartPole Env](Results/plots_images/CartPole-v1_ENV/checkpoint_comparison.png)
+
+*Lunar Lander Environment Checkpoint Comparison*
+
+![Lunarlander Env](Results/plots_images/LunarLander-v3_ENV/checkpoint_comparison.png)
+
+*Mountain Car Environment Checkpoint Comparison*
+
+![Mountain Car Env](Results/plots_images/MountainCar-v0_ENV/checkpoint_comparison.png)
+
+*Overall Model summary*
+
 ![Alt Text](/Results/summary_result.png)
 
 
