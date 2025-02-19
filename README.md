@@ -1,10 +1,29 @@
-# Project outline
+# Deep-Q-Network DQN Variants Analysis for Optimization
 
+### Programmatically recorded the best strategy's videos for each algorithm and each environment.
+
+*CartPole Demo Dueling Model*
+![CartPole Demo Dueling](/results/videos/DuelingDQN/CartPole-v1/CartPole_best_strategy.gif)
+
+*Lunar lander Demo Dueling Model*
+![Lunar lander Demo Dueling](/results/videos/DuelingDQN/LunarLander-v3/Luner_best_strategy.gif)
+
+*Mountain Car Demo Dueling Model*
+![Mountain Car Demo Dueling](/results/videos/DuelingDQN/MountainCar-v0/Mountain_best_strategy.gif)
+
+
+## Analysis result summary:
+![Alt Text](/results/summary_result.png)
+
+
+### My Presentation PPT: [Click here to see the full presentation](https://www.canva.com/design/DAGahDwGwko/1xpOAfOGUGTl46n14YIHnA/view?utm_content=DAGahDwGwko&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=hdc0cf455e3)
+
+## Project Overview
 Each video saved inside `"results/video"` directory which contain one video for each environment and each algorithm only best strategy using gymnasium package.
 
-In the `weights` folder have trained file `1000.pth`, `2000.pth`, `best.pth` and `training.log` for each algorithm and each environment.
+In the `weights` directory have trained file `1000.pth`, `2000.pth`, `best.pth` and `training.log` for each algorithm and each environment.
 
-`plots_images` folder contain all visualization `7 images` and a `checkpoint_summary.csv` file for each environments and algorithms
+`plots_images` directory contain all visualization `7 images` and a `checkpoint_summary.csv` file for each environments and algorithms
 
 ## Installation
 
@@ -34,7 +53,7 @@ We have 3 environment here:
 - "LunarLander-v3"
 
 
-For visual and compare you need to set i.e., `env_name = 'LunarLander-v3'` manually need to change for each environment name and then run below command it will save specific folder each algorithms plot.
+For visual and compare you need to set i.e., `env_name = 'LunarLander-v3'` manually need to change for each environment name and then run below command it will save specific directory each algorithms plot.
 
 ```bash
 python .\results\visualize_comparison.py    
